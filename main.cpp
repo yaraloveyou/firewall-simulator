@@ -3,14 +3,21 @@
 
 #include "firewall.h"
 #include "enums.h"
+#include "time.h"
 
 int main() {
     Firewall firewall;
 
-    firewall.add_rule(TCP, 80, "192.168.1.2", 24, true); 
-    firewall.add_rule(UDP, 443, "192.168.1.3", 24, true);
-    firewall.add_rule(ICMP, 22, "192.168.1.4", 24, false);
-    firewall.add_rule(TCP, 8080, "", 0, true);
+    Time start_HTTP = {8, 0};
+    Time end_HTTP = {18, 0};
+
+    Time start_SSH = {0, 0};
+    Time end_SSH = {24, 0};
+
+    firewall.add_rule(TCP, 80, "192.168.1.2", 24, true, start_HTTP, end_HTTP); 
+    firewall.add_rule(UDP, 443, "192.168.1.3", 24, true, start_HTTP, end_HTTP);
+    firewall.add_rule(ICMP, 22, "192.168.1.4", 24, false, start_SSH, end_SSH);
+    firewall.add_rule(TCP, 8080, "", 0, true, start_SSH, end_SSH);
 
     int port;
     std::string ip_address;

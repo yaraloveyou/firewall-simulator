@@ -3,23 +3,48 @@
 
 #include "firewall.h"
 #include "enums.h"
+#include "time.h"
 
-void Firewall::add_rule(ProtocolType protocol, int port, const std::string& ip_address, int subnet_mask, bool allow) {
-    rules.push_back({protocol, port, ip_address, subnet_mask, allow});
+Time GetCurrentTime() {
+    auto now = std::chrono::system_clock::now();
+    std::time_t current_time = std::chrono::system_clock::to_time_t(now);
+
+    struct tm time_info;
+
+    #ifdef _WIN32
+        localtime_s(&time_info, &current_time);
+    #else
+        localtime(&current_time, &time_info);
+    #endif
+
+    Time current_time_struct;
+    current_time_struct.hours = time_info.tm_hour;
+    current_time_struct.minutes = time_info.tm_min;
+
+    return current_time_struct;
+}
+
+void Firewall::add_rule(ProtocolType protocol, int port, const std::string& ip_address, int subnet_mask, bool allow, const Time& time_start, const Time& time_end) {
+    rules.push_back({protocol, port, ip_address, subnet_mask, allow, time_start, time_end});
 }
 
 bool Firewall::is_allowed(ProtocolType protocol, int port, const std::string& ip_address) {
+    Time current_time = GetCurrentTime();
+
     for (const auto& rule : rules) {
         if (rule.port != port && rule.protocol != protocol) 
             continue;
 
-        if (rule.subnet_mask == 0) {
-            return rule.allow;
-        }
+        if (rule.start_time <= current_time && current_time <= rule.end_time){
+            if (rule.subnet_mask == 0) {
+                return rule.allow;
+            }
 
-        if (match_subnet(ip_address, rule.ip_address, rule.subnet_mask)) {
-            return rule.allow;
-        }
+            if (match_subnet(ip_address, rule.ip_address, rule.subnet_mask)) {
+                return rule.allow;
+            }
+        } else
+            return false;
     }
 
     return true;
