@@ -2,14 +2,15 @@
 #include <sstream>
 
 #include "firewall.h"
+#include "enums.h"
 
-void Firewall::add_rule(int port, const std::string& ip_address, int subnet_mask, bool allow) {
-    rules.push_back({port, ip_address, subnet_mask, allow});
+void Firewall::add_rule(ProtocolType protocol, int port, const std::string& ip_address, int subnet_mask, bool allow) {
+    rules.push_back({protocol, port, ip_address, subnet_mask, allow});
 }
 
-bool Firewall::is_allowed(int port, const std::string& ip_address) {
+bool Firewall::is_allowed(ProtocolType protocol, int port, const std::string& ip_address) {
     for (const auto& rule : rules) {
-        if (rule.port != port) 
+        if (rule.port != port && rule.protocol != protocol) 
             continue;
 
         if (rule.subnet_mask == 0) {
