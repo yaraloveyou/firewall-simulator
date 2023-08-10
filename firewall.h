@@ -17,8 +17,8 @@ private:
         std::string ip_address;
         int subnet_mask;
         bool allow;
-        Time start_time; // Rule start time (for example, in hours)
-        Time end_time; // Rule expiration time (for examle, in hours)
+        Time start_time; 
+        Time end_time;
     };
 
     std::vector<Rule> rules;

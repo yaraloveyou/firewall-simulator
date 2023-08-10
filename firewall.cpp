@@ -5,7 +5,11 @@
 #include "firewall.h"
 #include "enums.h"
 #include "time.h"
-#include "protocolpayload.h"
+#include "protocol_payload.h"
+#include "packet_analyzer.h"
+#include "constants.h"
+
+PacketAnalyzer packet_analyzer;
 
 Time GetCurrentTime() {
     auto now = std::chrono::system_clock::now();
@@ -64,20 +68,22 @@ void Firewall::add_log_attack(const Packet& packet, const std::string& attack_ty
     };
 }
 
-bool Firewall::is_buffer_overflow_attack(const Packet& packet, size_t expected_payload_size) {
-    if (packet.payload.size() > expected_payload_size) {
-        add_log_attack(packet, "Buffer Overflow Attack");
-        return true;
-    }
-
-    return false;
-}
-
 bool Firewall::is_allowed(const Packet& packet) {
     Time current_time = GetCurrentTime();
+    
     size_t expected_payload_size = ProtocolPayload().get_expected_payload_size(packet.protocol);
 
-    if (is_buffer_overflow_attack(packet, expected_payload_size)) {
+    if (packet_analyzer.is_buffer_overflow_attack(packet, expected_payload_size)) {
+        add_log_entry({GetCurrentTimestamp(), "Blocked", packet.protocol, packet.port, packet.ip_address});
+        return false;
+    }
+
+    if (packet_analyzer.is_ddos_attack(packet, constants::MAX_REQUESTS_THRESHOLD)) {
+        add_log_entry({GetCurrentTimestamp(), "Blocked", packet.protocol, packet.port, packet.ip_address});
+        return false;
+    }
+
+    if (packet_analyzer.is_port_scanning(packet)) {
         add_log_entry({GetCurrentTimestamp(), "Blocked", packet.protocol, packet.port, packet.ip_address});
         return false;
     }

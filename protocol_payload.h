@@ -1,8 +1,9 @@
-#include "enums.h"
-#include "vector"
+#include <vector>
 
-#ifndef PROTOCOLPAYLOAD_H_
-#define PROTOCOLPAYLOAD_H_
+#include "enums.h"
+
+#ifndef PROTOCOL_PAYLOAD_H_
+#define PROTOCOL_PAYLOAD_H_
 
 class ProtocolPayload{
 private:
