@@ -39,6 +39,8 @@ int main() {
         std::cerr << "Access blocked.\n";
     }
 
+    firewall.display_logs();
+
     system("pause");
     return 0;
 }

@@ -3,6 +3,7 @@
 
 #include "enums.h"
 #include "time.h"
+#include "logentry.h"
 
 #ifndef FIREWALL_H_
 #define FIREWALL_H_
@@ -20,11 +21,14 @@ private:
     };
 
     std::vector<Rule> rules;
+    std::vector<LogEntry> logs;
 
 public:
     void add_rule(ProtocolType protocol, int port, const std::string& ip_address, int subnet_mask, bool allow, const Time& start_time, const Time& end_time);
     bool is_allowed(ProtocolType protocol, int port, const std::string& ip_address);
     bool match_subnet(const std::string& ip_address, const std::string& rule_address, int subnet_mask);
+    void add_log_entry(const LogEntry& log_entry);
+    void display_logs();
 };
 
 #endif
