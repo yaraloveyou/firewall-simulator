@@ -1,8 +1,8 @@
 #include <iostream>
 #include "enums.h"
 
-#ifndef LOGENTRY_H_
-#define LOGENTRY_H_
+#ifndef LOG_H_
+#define LOG_H_
 
 struct LogEntry {
     std::string timestamp;
@@ -10,6 +10,14 @@ struct LogEntry {
     ProtocolType protocol;
     int port;
     std::string ip_address;
+};
+
+struct LogAttack {
+    std::string timestamp;
+    std::string ip_address;
+    int port;
+    ProtocolType protocol;
+    std::string attack_type;
 };
 
 #endif
