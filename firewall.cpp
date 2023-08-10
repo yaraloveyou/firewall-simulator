@@ -11,6 +11,10 @@
 
 PacketAnalyzer packet_analyzer;
 
+Firewall::Firewall() {
+    packet_analyzer.firewall = *this;
+}
+
 Time GetCurrentTime() {
     auto now = std::chrono::system_clock::now();
     std::time_t current_time = std::chrono::system_clock::to_time_t(now);

@@ -26,6 +26,7 @@ private:
     std::vector<LogAttack> logs_attack;
 
 public:
+    Firewall();
     void add_rule(ProtocolType protocol, int port, const std::string& ip_address, int subnet_mask, bool allow, const Time& start_time, const Time& end_time);
     bool is_allowed(const Packet& packet);
     bool match_subnet(const std::string& ip_address, const std::string& rule_address, int subnet_mask);

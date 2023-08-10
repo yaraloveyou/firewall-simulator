@@ -5,6 +5,7 @@
 #include "enums.h"
 #include "time.h"
 #include "packet.h"
+#include "packet_generator.h"
 
 int main() {
     Firewall firewall;
@@ -20,26 +21,9 @@ int main() {
     firewall.add_rule(ICMP, 22, "192.168.1.4", 24, false, start_SSH, end_SSH);
     firewall.add_rule(TCP, 8080, "", 0, true, start_SSH, end_SSH);
 
-    // int port;
-    // std::string ip_address;
-    // ProtocolType protocol;
-
-    // std::cout << "Enter a protocol (0 for TCP, 1 for UDP, 2 for ICMP): ";
-    // int protocol_choice;
-    // std::cin >> protocol_choice;
-    // protocol = static_cast<ProtocolType>(protocol_choice);
-
-    // std::cout << "Enter a port number: ";
-    // std::cin >> port;
-    // std::cout << "Enter an IP address: ";
-    // std::cin >> ip_address;
-
-    std::vector<Packet> packets = {
-        {ProtocolType::TCP, 80, "192.168.1.62", "Hello world! Payloadl test packet"},
-        {ProtocolType::TCP, 443, "192.168.1.1", ""},
-        {ProtocolType::ICMP, 22, "192.168.1.4", ""},
-        {ProtocolType::TCP, 8080, "", ""},
-    };
+    PacketGenerator generator;
+    generator.start_generating_packets(1000, 1);
+    const std::vector<Packet>& packets = generator.get_packets();
 
     for (const auto& packet : packets) {
         firewall.is_allowed(packet);

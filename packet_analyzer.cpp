@@ -5,13 +5,13 @@
 #include "firewall.h"
 #include "packet_analyzer.h"
 
-PacketAnalyzer::PacketAnalyzer(Firewall& firewall) {
-    m_firewall = firewall;
-}
+// PacketAnalyzer::PacketAnalyzer(Firewall& firewall) {
+//     m_firewall = firewall;
+// }
 
 bool PacketAnalyzer::is_buffer_overflow_attack(const Packet& packet, size_t expected_payload_size) {
     if (packet.payload.size() > expected_payload_size) {
-        m_firewall.add_log_attack(packet, "Buffer Overflow Attack");
+        firewall.add_log_attack(packet, "Buffer Overflow Attack");
         return true;
     }
 
@@ -29,7 +29,7 @@ bool PacketAnalyzer::is_ddos_attack(const Packet& packet, size_t threshold) {
     source_packet_count[packet.ip_address]++;
 
     if (source_packet_count[packet.ip_address] > threshold) {
-        m_firewall.add_log_attack(packet, "DDoS Attack");
+        firewall.add_log_attack(packet, "DDoS Attack");
         return true;
     }
 
@@ -40,7 +40,7 @@ bool PacketAnalyzer::is_port_scanning(const Packet& packet) {
     std::unordered_set<int>& prev_ports = previos_ports[packet.ip_address];
 
     if (prev_ports.find(packet.port) != prev_ports.end()) {
-        m_firewall.add_log_attack(packet, "Port scanning");
+        firewall.add_log_attack(packet, "Port scanning");
         return true;
     }
     
