@@ -52,6 +52,39 @@ std::string GetCurrentTimestamp() {
     return ss.str();
 }
 
+void Firewall::input_rule() {
+    ProtocolType protocol;
+    int port, subnet_mask;
+    std::string ip_address;
+    bool allow;
+    Time time_start, time_end;
+
+    int protocol_chois;
+    std::cout << "Enter a protocol (0 for TCP, 1 for UDP, 2 for ICMP): \b";
+    std::cin >> protocol_chois;
+    protocol = static_cast<ProtocolType>(protocol_chois);
+
+    std::cout << "Enter an IP address: ";
+    std::cin >> ip_address;
+
+    std::cout << "Enter a subner mask: ";
+    std::cin >> subnet_mask;
+
+    std::cout << "Enter a port: ";
+    std::cin >> port;
+
+    std::cout << "Enter an allow (0 for false, 1 for true): ";
+    std::cin >> allow;
+
+    std::cout << "Enter a time start: ";
+    std::cin >> time_start.hours >> time_start.minutes;
+    
+    std::cout << "Enter a time end: ";
+    std::cin >> time_end.hours >> time_end.minutes;
+
+    add_rule(protocol, port, ip_address, subnet_mask, allow, time_start, time_end);
+}
+
 void Firewall::add_rule(ProtocolType protocol, int port, const std::string& ip_address, int subnet_mask, bool allow, const Time& time_start, const Time& time_end) {
     rules.push_back({protocol, port, ip_address, subnet_mask, allow, time_start, time_end});
 }
@@ -70,6 +103,8 @@ void Firewall::add_log_attack(const Packet& packet, const std::string& attack_ty
         packet.protocol, 
         attack_type
     };
+
+    logs_attack.push_back(log_entry);
 }
 
 bool Firewall::is_allowed(const Packet& packet) {
@@ -172,5 +207,41 @@ void Firewall::display_logs() {
                   << std::setw(10) << GetProtocolName(log.protocol)
                   << std::setw(10) << log.port
                   << log.ip_address << std::endl;
+    }
+}
+
+void Firewall::display_rules() {
+    std::cout << std::left << std::setw(10) << "Protocol"
+              << std::setw(10) << "Port"
+              << std::setw(15) << "IP Address"
+              << std::setw(12) << "Subnet Mask"
+              << std::setw(10) << "Allow"
+              << std::setw(15) << "Start Time"
+              << "End Time" << std::endl;
+
+    for (const auto& rule : rules) {
+        std::cout << std::left << std::setw(10) << GetProtocolName(rule.protocol)
+                  << std::setw(10) << rule.port
+                  << std::setw(15) << rule.ip_address
+                  << std::setw(12) << rule.subnet_mask
+                  << std::setw(10) << (rule.allow ? "Allow" : "Block")
+                  << std::setw(15) << rule.start_time.to_string()
+                  << rule.end_time.to_string() << std::endl;
+    }
+}
+
+void Firewall::display_logs_attack() {
+        std::cout << std::left << std::setw(20) << "Timestamp"
+              << std::setw(12) << "Event Type"
+              << std::setw(10) << "Protocol"
+              << std::setw(10) << "Port"
+              << "IP Address" << std::endl;
+
+    for (const auto& log : logs_attack) {
+        std::cout << std::left << std::setw(20) << log.timestamp
+                  << std::setw(10) << GetProtocolName(log.protocol)
+                  << std::setw(10) << log.port
+                  << log.ip_address
+                  << std::setw(40) << log.attack_type << std::endl;
     }
 }

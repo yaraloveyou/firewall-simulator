@@ -32,6 +32,9 @@ public:
     bool match_subnet(const std::string& ip_address, const std::string& rule_address, int subnet_mask);
     void add_log_entry(const LogEntry& log_entry);
     void display_logs();
+    void display_logs_attack();
+    void display_rules();
+    void input_rule();
 
     void add_log_attack(const Packet& packet, const std::string& attack_type);
     bool is_buffer_overflow_attack(const Packet& packet, size_t expected_payload_size);

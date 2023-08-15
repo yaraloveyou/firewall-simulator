@@ -1,5 +1,14 @@
 #include <iostream>
 #include <vector>
+#include <string>
+#ifdef _WIN32
+#include <conio.h>
+#define CLEAR_SCREEN "cls"
+#else
+#include <termios.h>
+#include <unistd.h>
+#define CLEAR_SCREEN "clear"
+#endif
 
 #include "firewall.h"
 #include "enums.h"
@@ -10,26 +19,51 @@
 int main() {
     Firewall firewall;
 
-    Time start_HTTP = {8, 0};
-    Time end_HTTP = {18, 0};
+    std::vector<std::string> options = {"Add rule", "Browsing rules", "Viewing logs", "View attack logs"};
+    int selected_option = 0;
+    std::vector<Packet> packets;
 
-    Time start_SSH = {0, 0};
-    Time end_SSH = {24, 0};
+    while (true) {
+        PacketGenerator packet_generator;
+        packet_generator.start_generating_packets(5, 0);
+        system(CLEAR_SCREEN);
+        for (int i = 0; i < options.size(); ++i) {
+            if (selected_option == i) {
+                std::cout << "> " << options[i] << std::endl;
+            } else {
+                std::cout << "  " << options[i] << std::endl;
+            }
+        }
 
-    firewall.add_rule(TCP, 80, "192.168.1.2", 26, true, start_HTTP, end_HTTP); 
-    firewall.add_rule(UDP, 443, "192.168.1.3", 24, true, start_HTTP, end_HTTP);
-    firewall.add_rule(ICMP, 22, "192.168.1.4", 24, false, start_SSH, end_SSH);
-    firewall.add_rule(TCP, 8080, "", 0, true, start_SSH, end_SSH);
-
-    PacketGenerator generator;
-    generator.start_generating_packets(1000, 1);
-    const std::vector<Packet>& packets = generator.get_packets();
-
-    for (const auto& packet : packets) {
-        firewall.is_allowed(packet);
+        int key = _getch();
+        switch (key) {
+            case 72:
+                selected_option = (selected_option - 1 + options.size()) % options.size();
+                break;
+            case 80:
+                selected_option = (selected_option + 1) % options.size();
+            break;
+            case 13:
+                system(CLEAR_SCREEN);
+                if (selected_option == 0) {
+                    firewall.input_rule();
+                }
+                else if (selected_option == 1) {
+                    firewall.display_rules();
+                }
+                else if (selected_option == 2) {
+                    packets = packet_generator.get_packets();
+                    for (const auto& packet : packets)
+                        firewall.is_allowed(packet);
+                    firewall.display_logs();
+                } else if (selected_option == 3) {
+                    firewall.display_logs_attack();
+                }
+                    
+                system("pause");
+            break;
+        }
     }
-
-    firewall.display_logs();
 
     system("pause");
     return 0;
